@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Rock Paper Scissors 🎮</title>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 18px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: Arial, sans-serif;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            #ffe4f0,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            #dfe4ff,
+            transparent 45%
+        ),
+        #f7f8ff;
+}
+
+.game {
+    width: 100%;
+    max-width: 450px;
+
+    background: rgba(255,255,255,0.96);
+
+    padding: 30px 22px;
+
+    border-radius: 30px;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 50px rgba(80,70,130,0.15);
+
+    border: 1px solid rgba(255,255,255,0.8);
+}
+
+.logo {
+    font-size: 48px;
+    margin-bottom: 5px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 30px;
+    color: #29264a;
+}
+
+h2 {
+    margin: 7px 0 25px;
+    font-size: 15px;
+    font-weight: normal;
+    color: #85829a;
+}
+
+input {
+    width: 100%;
+
+    padding: 15px;
+
+    margin: 7px 0;
+
+    border: 2px solid #ecebf3;
+
+    border-radius: 14px;
+
+    font-size: 16px;
+
+    outline: none;
+
+    background: #fafaff;
+}
+
+input:focus {
+    border-color: #756cff;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 4px rgba(117,108,255,0.08);
+}
+
+button {
+    border: 0;
+
+    border-radius: 14px;
+
+    padding: 13px 18px;
+
+    margin: 6px;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    transition:
+        transform .15s,
+        opacity .15s,
+        box-shadow .15s;
+}
+
+button:active {
+    transform: scale(.96);
+}
+
+.main-btn {
+    width: 90%;
+
+    margin-top: 10px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #756cff,
+            #9b73ff
+        );
+
+    box-shadow:
+        0 8px 18px rgba(117,108,255,0.25);
+}
+
+.main-btn:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 11px 22px rgba(117,108,255,0.30);
+}
+
+.main-btn:disabled {
+    opacity: .45;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+#roomBox,
+#gameBox {
+    display: none;
+}
+
+.room-icon {
+    font-size: 48px;
+}
+
+.room-label {
+    color: #77748b;
+    margin-bottom: 5px;
+}
+
+#roomCode {
+    display: inline-block;
+
+    padding: 12px 20px;
+
+    margin: 15px;
+
+    border-radius: 15px;
+
+    background: #f0efff;
+
+    color: #6259e8;
+
+    font-size: 30px;
+
+    font-weight: bold;
+
+    letter-spacing: 7px;
+}
+
+.status {
+    min-height: 25px;
+
+    margin: 17px 0;
+
+    font-weight: bold;
+
+    color: #57536e;
+
+    line-height: 1.4;
+}
+
+.players-card {
+    padding: 13px;
+
+    border-radius: 16px;
+
+    background: #f7f6ff;
+
+    color: #514d70;
+
+    font-weight: bold;
+
+    margin-bottom: 12px;
+}
+
+.score-card {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 18px;
+
+    margin: 15px 0;
+
+    padding: 14px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff5fa,
+            #f2f1ff
+        );
+}
+
+.score-player {
+    min-width: 70px;
+}
+
+.score-name {
+    display: block;
+
+    font-size: 12px;
+
+    color: #88859a;
+
+    margin-bottom: 4px;
+}
+
+.score-number {
+    font-size: 30px;
+
+    font-weight: bold;
+
+    color: #4d4775;
+}
+
+.score-dash {
+    font-size: 22px;
+
+    color: #aaa6bb;
+}
+
+.choice-title {
+    font-size: 14px;
+
+    color: #88859a;
+
+    margin: 18px 0 8px;
+}
+
+.choice-area {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+.choice {
+    width: 92px;
+
+    height: 86px;
+
+    margin: 4px;
+
+    border-radius: 20px;
+
+    font-size: 43px;
+
+    background: #f5f4fa;
+
+    box-shadow:
+        0 6px 15px rgba(70,65,100,0.08);
+}
+
+.choice:hover:not(:disabled) {
+    transform: translateY(-5px) scale(1.04);
+
+    background: #eeecff;
+
+    box-shadow:
+        0 10px 20px rgba(117,108,255,0.16);
+}
+
+.choice:disabled {
+    opacity: .35;
+
+    cursor: not-allowed;
+}
+
+.result {
+    min-height: 42px;
+
+    margin: 12px 0;
+
+    padding: 8px;
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    color: #5148c9;
+}
+
+.moves {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    margin: 20px 0 12px;
+}
+
+.move-box {
+    flex: 1;
+
+    max-width: 150px;
+
+    padding: 12px 8px;
+
+    border-radius: 15px;
+
+    background: #faf9fd;
+
+    color: #77748a;
+
+    font-size: 13px;
+
+    border: 1px solid #eeeef5;
+}
+
+.move-box span {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 30px;
+}
+
+.small {
+    color: #9996a7;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+@media (max-width: 380px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .game {
+        padding: 25px 16px;
+        border-radius: 24px;
+    }
+
+    .choice {
+        width: 78px;
+        height: 74px;
+        font-size: 36px;
+    }
+
+    #roomCode {
+        font-size: 25px;
+        letter-spacing: 5px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="game">
+
+
+<!-- START SCREEN -->
+
+<div id="startBox">
+
+    <div class="logo">
+        🪨 📄 ✂️
+    </div>
+
+    <h1>
+        Rock Paper Scissors
+    </h1>
+
+    <h2>
+        Play with your friend online 🎮
+    </h2>
+
+    <input
+        id="name"
+        placeholder="Enter your name"
+        maxlength="20"
+    >
+
+    <button
+        class="main-btn"
+        id="createBtn"
+    >
+        🎮 Create Game
+    </button>
+
+    <p class="small">
+        or
+    </p>
+
+    <input
+        id="joinCode"
+        placeholder="Enter room code"
+        maxlength="6"
+    >
+
+    <button
+        class="main-btn"
+        id="joinBtn"
+    >
+        👥 Join Game
+    </button>
+
+</div>
+
+
+<!-- ROOM SCREEN -->
+
+<div id="roomBox">
+
+    <div class="room-icon">
+        🎮
+    </div>
+
+    <h1>
+        Game Room
+    </h1>
+
+    <p class="room-label">
+        Share this code with your friend
+    </p>
+
+    <div id="roomCode"></div>
+
+    <button
+        class="main-btn"
+        id="copyBtn"
+    >
+        📋 Copy Room Code
+    </button>
+
+    <div
+        class="status"
+        id="waitingStatus"
+    >
+        ⏳ Waiting for your friend...
+    </div>
+
+    <p class="small">
+        Your friend can enter this code
+        to join your game.
+    </p>
+
+</div>
+
+
+<!-- GAME SCREEN -->
+
+<div id="gameBox">
+
+    <div class="logo">
+        🪨 📄 ✂️
+    </div>
+
+    <div
+        class="players-card"
+        id="players"
+    >
+        You 🆚 Friend
+    </div>
+
+    <div class="score-card">
+
+        <div class="score-player">
+
+            <span class="score-name">
+                YOU
+            </span>
+
+            <span
+                class="score-number"
+                id="myScore"
+            >
+                0
+            </span>
+
+        </div>
+
+        <div class="score-dash">
+            -
+        </div>
+
+        <div class="score-player">
+
+            <span class="score-name">
+                FRIEND
+            </span>
+
+            <span
+                class="score-number"
+                id="friendScore"
+            >
+                0
+            </span>
+
+        </div>
+
+    </div>
+
+    <div
+        class="status"
+        id="gameStatus"
+    >
+        Choose your move!
+    </div>
+
+    <div class="choice-title">
+        Make your choice 👇
+    </div>
+
+    <div class="choice-area">
+
+        <button
+            class="choice"
+            data-choice="rock"
+        >
+            🪨
+        </button>
+
+        <button
+            class="choice"
+            data-choice="paper"
+        >
+            📄
+        </button>
+
+        <button
+            class="choice"
+            data-choice="scissors"
+        >
+            ✂️
+        </button>
+
+    </div>
+
+    <div class="moves">
+
+        <div class="move-box">
+
+            You
+
+            <span id="myMove">
+                ❔
+            </span>
+
+        </div>
+
+        <div class="move-box">
+
+            Friend
+
+            <span id="friendMove">
+                ❔
+            </span>
+
+        </div>
+
+    </div>
+
+    <div
+        class="result"
+        id="result"
+    ></div>
+
+    <button
+        class="main-btn"
+        id="againBtn"
+        disabled
+    >
+        🔄 Play Again
+    </button>
+
+    <p
+        class="small"
+        id="againStatus"
+    >
+        Both players must finish the round first.
+    </p>
+
+</div>
+
+
+</div>
+<script>
+
+let peer = null;
+  async function getIceServers() {
+  const response = await fetch(
+    "https://rock-paper-scissors.metered.live/api/v1/turn/credentials?apiKey=e63800c0d3b5ab4d396e31e182241422b637"
+  );
+
+  if (!response.ok) {
+    throw new Error("Could not get TURN servers");
+  }
+
+  return await response.json();
+  }
+let connection = null;
+
+let myName = "";
+let friendName = "";
+
+let myChoice = null;
+let friendChoice = null;
+
+let myScore = 0;
+let friendScore = 0;
+
+let roundFinished = false;
+
+let iAmReadyForNextRound = false;
+let friendReadyForNextRound = false;
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const startBox =
+    document.getElementById("startBox");
+
+const roomBox =
+    document.getElementById("roomBox");
+
+const gameBox =
+    document.getElementById("gameBox");
+
+const nameInput =
+    document.getElementById("name");
+
+const joinCodeInput =
+    document.getElementById("joinCode");
+
+const roomCode =
+    document.getElementById("roomCode");
+
+const waitingStatus =
+    document.getElementById("waitingStatus");
+
+const players =
+    document.getElementById("players");
+
+const gameStatus =
+    document.getElementById("gameStatus");
+
+const result =
+    document.getElementById("result");
+
+const myMove =
+    document.getElementById("myMove");
+
+const friendMove =
+    document.getElementById("friendMove");
+
+const myScoreText =
+    document.getElementById("myScore");
+
+const friendScoreText =
+    document.getElementById("friendScore");
+
+const againBtn =
+    document.getElementById("againBtn");
+
+const againStatus =
+    document.getElementById("againStatus");
+
+
+/* =========================
+   CREATE GAME
+========================= */
+document.getElementById("createBtn").onclick = async function() {
+
+    myName =
+        nameInput.value.trim();
+
+    if (!myName) {
+
+        alert(
+            "Please enter your name 😊"
+        );
+
+        return;
+    }
+
+    waitingStatus.textContent =
+        "⏳ Creating room...";
+
+    let code =
+        Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
+  waitingStatus.textContent = "🔄 Getting TURN servers...";
+  try {
+const iceServers = await getIceServers();
+
+peer = new Peer(code, {
+  config: {
+    iceServers: iceServers
+  }
+});
+} catch (error) {
+  console.log(error);
+  waitingStatus.textContent = "⚠️ Could not connect to TURN server.";
+  alert("⚠️ TURN connection failed. Please try again.");
+  return;
+  }
+
+    peer.on("open", function(id) {
+
+        startBox.style.display =
+            "none";
+
+        roomBox.style.display =
+            "block";
+
+        roomCode.textContent =
+            id;
+
+        waitingStatus.textContent =
+            "⏳ Waiting for your friend...";
+
+    });
+
+
+    peer.on("connection", function(conn) {
+
+        connection =
+            conn;
+
+        setupConnection();
+
+
+        connection.on("open", function() {
+
+            connection.send({
+
+                type: "name",
+
+                name: myName
+
+            });
+
+            showGame();
+
+        });
+
+    });
+
+
+    peer.on("error", function(error) {
+
+        console.log(error);
+
+        alert(
+            "⚠️ Could not create the game.\n" +
+            "Please try again."
+        );
+
+    });
+
+};
+
+
+/* =========================
+   JOIN GAME
+========================= */
+
+document.getElementById("joinBtn").onclick =
+async function() {
+
+    myName =
+        nameInput.value.trim();
+
+    let code =
+        joinCodeInput.value
+        .trim()
+        .toUpperCase();
+
+
+    if (!myName) {
+
+        alert(
+            "Please enter your name 😊"
+        );
+
+        return;
+    }
+
+
+    if (!code) {
+
+        alert(
+            "Please enter the room code."
+        );
+
+        return;
+    }
+
+
+    const iceServers = await getIceServers();
+
+peer = new Peer(null, {
+  config: {
+    iceServers: iceServers
+  }
+});
+
+
+    peer.on("open", function() {
+
+        connection =
+            peer.connect(code);
+
+        setupConnection();
+
+
+        connection.on("open", function() {
+
+            connection.send({
+
+                type: "name",
+
+                name: myName
+
+            });
+
+            showGame();
+
+        });
+
+    });
+
+
+    peer.on("error", function(error) {
+
+        console.log(error);
+
+        alert(
+            "⚠️ Could not join the game.\n" +
+            "Please check the room code and try again."
+        );
+
+    });
+
+};
+
+
+/* =========================
+   CONNECTION
+========================= */
+
+function setupConnection() {
+
+    connection.on(
+        "data",
+        function(data) {
+
+
+            /* FRIEND NAME */
+
+            if (data.type === "name") {
+
+                friendName =
+                    data.name;
+
+                updatePlayers();
+
+            }
+
+
+            /* FRIEND CHOICE */
+
+            if (data.type === "choice") {
+
+                friendChoice =
+                    data.choice;
+
+                friendMove.textContent =
+                    choiceEmoji(friendChoice);
+
+                gameStatus.textContent =
+                    "Your friend has chosen!";
+
+                checkResult();
+
+            }
+
+
+            /* FRIEND WANTS NEXT ROUND */
+
+            if (data.type === "again") {
+
+                friendReadyForNextRound =
+                    true;
+
+                againStatus.textContent =
+                    "Your friend is ready!";
+
+                checkNextRound();
+
+            }
+
+        }
+    );
+
+
+    /* FRIEND DISCONNECTED */
+
+    connection.on(
+        "close",
+        function() {
+
+            gameStatus.textContent =
+                "⚠️ Your friend left the game.";
+
+            againBtn.disabled =
+                true;
+
+            document
+                .querySelectorAll(".choice")
+                .forEach(function(button) {
+
+                    button.disabled =
+                        true;
+
+                });
+
+            againStatus.textContent =
+                "Please create a new game to play again.";
+
+        }
+    );
+
+
+    /* CONNECTION ERROR */
+
+    connection.on(
+        "error",
+        function(error) {
+
+            console.log(error);
+
+            gameStatus.textContent =
+                "⚠️ Connection problem.";
+
+            againBtn.disabled =
+                true;
+
+            document
+                .querySelectorAll(".choice")
+                .forEach(function(button) {
+
+                    button.disabled =
+                        true;
+
+                });
+
+            againStatus.textContent =
+                "Please check your internet connection.";
+
+        }
+    );
+
+}
+
+
+/* =========================
+   SHOW GAME
+========================= */
+
+function showGame() {
+
+    startBox.style.display =
+        "none";
+
+    roomBox.style.display =
+        "none";
+
+    gameBox.style.display =
+        "block";
+
+    updatePlayers();
+
+}
+
+
+/* =========================
+   UPDATE PLAYERS
+========================= */
+
+function updatePlayers() {
+
+    players.textContent =
+        myName +
+        " 🆚 " +
+        (
+            friendName ||
+            "Friend"
+        );
+
+}
+
+
+/* =========================
+   CHOICE BUTTONS
+========================= */
+
+document
+    .querySelectorAll(".choice")
+    .forEach(function(button) {
+
+        button.onclick =
+        function() {
+
+            if (
+                myChoice ||
+                roundFinished
+            ) {
+
+                return;
+
+            }
+
+
+            myChoice =
+                button.dataset.choice;
+
+
+            myMove.textContent =
+                choiceEmoji(myChoice);
+
+
+            gameStatus.textContent =
+                "✅ You chose! Waiting for your friend...";
+
+
+            disableChoices();
+
+
+            if (connection) {
+
+                connection.send({
+
+                    type: "choice",
+
+                    choice: myChoice
+
+                });
+
+            }
+
+
+            checkResult();
+
+        };
+
+    });
+
+
+/* =========================
+   CHECK RESULT
+========================= */
+
+function checkResult() {
+
+    if (
+        !myChoice ||
+        !friendChoice
+    ) {
+
+        return;
+
+    }
+
+
+    if (roundFinished) {
+
+        return;
+
+    }
+
+
+    roundFinished =
+        true;
+
+
+    let message = "";
+
+
+    /* DRAW */
+
+    if (
+        myChoice === friendChoice
+    ) {
+
+        message =
+            "🤝 It's a Draw!";
+
+    }
+
+
+    /* MY WIN */
+
+    else if (
+
+        (
+            myChoice === "rock" &&
+            friendChoice === "scissors"
+        )
+
+        ||
+
+        (
+            myChoice === "paper" &&
+            friendChoice === "rock"
+        )
+
+        ||
+
+        (
+            myChoice === "scissors" &&
+            friendChoice === "paper"
+        )
+
+    ) {
+
+        message =
+            "🎉 You Win!";
+
+        myScore++;
+
+    }
+
+
+    /* FRIEND WIN */
+
+    else {
+
+        message =
+            "😄 Your Friend Wins!";
+
+        friendScore++;
+
+    }
+
+
+    result.textContent =
+        message;
+
+
+    myScoreText.textContent =
+        myScore;
+
+    friendScoreText.textContent =
+        friendScore;
+
+
+    gameStatus.textContent =
+        "🏁 Round finished!";
+
+
+    againBtn.disabled =
+        false;
+
+
+    againStatus.textContent =
+        "Press Play Again when you're ready.";
+
+}
+
+
+/* =========================
+   DISABLE CHOICES
+========================= */
+
+function disableChoices() {
+
+    document
+        .querySelectorAll(".choice")
+        .forEach(function(button) {
+
+            button.disabled =
+                true;
+
+        });
+
+}
+
+
+/* =========================
+   PLAY AGAIN
+========================= */
+
+againBtn.onclick =
+function() {
+
+    if (!roundFinished) {
+
+        return;
+
+    }
+
+
+    iAmReadyForNextRound =
+        true;
+
+
+    againBtn.disabled =
+        true;
+
+
+    againStatus.textContent =
+        "⏳ Waiting for your friend...";
+
+
+    if (connection) {
+
+        connection.send({
+
+            type: "again"
+
+        });
+
+    }
+
+
+    checkNextRound();
+
+};
+
+
+/* =========================
+   CHECK NEXT ROUND
+========================= */
+
+function checkNextRound() {
+
+    if (
+        !iAmReadyForNextRound ||
+        !friendReadyForNextRound
+    ) {
+
+        return;
+
+    }
+
+
+    myChoice = null;
+
+    friendChoice = null;
+
+    roundFinished = false;
+
+
+    iAmReadyForNextRound = false;
+
+    friendReadyForNextRound = false;
+
+
+    myMove.textContent =
+        "❔";
+
+    friendMove.textContent =
+        "❔";
+
+
+    result.textContent =
+        "";
+
+
+    gameStatus.textContent =
+        "Choose your move!";
+
+
+    againStatus.textContent =
+        "Both players are ready! 🎮";
+
+
+    againBtn.disabled =
+        true;
+
+
+    document
+        .querySelectorAll(".choice")
+        .forEach(function(button) {
+
+            button.disabled =
+                false;
+
+        });
+
+}
+
+
+/* =========================
+   EMOJI
+========================= */
+
+function choiceEmoji(choice) {
+
+    if (choice === "rock") {
+
+        return "🪨";
+
+    }
+
+
+    if (choice === "paper") {
+
+        return "📄";
+
+    }
+
+
+    if (choice === "scissors") {
+
+        return "✂️";
+
+    }
+
+
+    return "❔";
+
+}
+
+
+/* =========================
+   COPY ROOM CODE
+========================= */
+
+document.getElementById("copyBtn")
+.onclick =
+function() {
+
+    let code =
+        roomCode.textContent;
+
+
+    if (!navigator.clipboard) {
+
+        alert(
+            "Please copy the code manually:\n" +
+            code
+        );
+
+        return;
+    }
+
+
+    navigator.clipboard
+        .writeText(code)
+        .then(function() {
+
+            this.textContent =
+                "✅ Copied!";
+
+
+            setTimeout(
+                function() {
+
+                    document
+                        .getElementById("copyBtn")
+                        .textContent =
+                        "📋 Copy Room Code";
+
+                },
+                1500
+            );
+
+        }.bind(this));
+
+};
+/* =====================================================
+   FINAL SAFETY PATCH
+   ===================================================== */
+
+window.addEventListener("beforeunload", function() {
+  if (connection) {
+    try {
+      connection.close();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  if (peer) {
+    try {
+      peer.destroy();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+});
+
+/* Prevent accidental form/page submission */
+document.querySelectorAll("button").forEach(function(button) {
+  button.setAttribute("type", "button");
+});
+
+/* Keep the game from scrolling when rapidly tapping choices */
+document.querySelectorAll(".choice").forEach(function(button) {
+  button.addEventListener("touchstart", function(e) {
+    e.preventDefault();
+  }, {passive:false});
+});
+
+/* Clear old browser selection/focus after a choice */
+document.querySelectorAll(".choice").forEach(function(button) {
+  button.addEventListener("click", function() {
+    setTimeout(function() {
+      button.blur();
+    }, 50);
+  });
+});
+</script>
+
+</body>
+</html>
